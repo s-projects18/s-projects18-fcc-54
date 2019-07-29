@@ -61,4 +61,6 @@ code {
   font-size: 1.2em;
   background-color: #FFFEC4;
   padding: 2px;
+  display:block;
+  margin:0 0 1rem 0;
 }
