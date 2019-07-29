@@ -43,18 +43,38 @@ const usersSchema = new Schema({
   exercises: [exercisesSchema]
 });
 
-
-
 // model --------------------------------
 const Users = mongoose.model('users', usersSchema );
 const Exercises = mongoose.model('exercises', exercisesSchema );
 
 
-
 // access-funcs -------------------------
+// /api/exercise/add
+// uses Promise()-pattern
+exports.createExercise = (userId, exercise) => {
+  return new Promise((resolve, reject)=>{
+    let exerciseObject = new Exercises(exercise);
+
+    Users.findOne({"_id":userId}, (err, user)=>{
+      if(user==null) {
+        reject("no user found for: "+userId);
+      } else {
+        user.exercises.push(exerciseObject);
+
+        const pr = user.save();     
+        pr.then(doc=>{
+          resolve(doc);  
+        }).catch(err=>{
+          reject(err);  
+        });       
+      }
+    });
+  }); // new Promise
+} // createExercise
+
 // create a new user if not existing
 // uses next()-func-pattern
-exports.createUser = (username, next) =>{
+exports.createUser = (username, next, nextErr) =>{
   let usersObject = new Users({
     username:username
   });
@@ -62,12 +82,11 @@ exports.createUser = (username, next) =>{
   Users.findOne({username:username}, (err, docs)=>{
     if(docs==null) { // entry doesn't exist
       const pr = usersObject.save();
-      pr.then(function (doc) {
-        next(doc); // new doc created
-      });         
+      pr.then(doc => next(doc))
+        .catch(err => nextErr(err));         
     } else {
-      // doc yet exists -> return false
-      next(false);  
+      // doc yet exists
+      nextErr("User-exists-error");  
     }      
   });
 }

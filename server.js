@@ -48,19 +48,25 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
+app.get('/test.html', (req, res) => {
+  res.sendFile(__dirname + '/views/test.html')
+});
+
 // [2.1] /api/exercise/new-user
 // pattern 1: call a database-func and provide a next()-func
 // next() will be called after database-action is done (async!)
 // con: needs an extra-function
 app.post("/api/exercise/new-user", (req, res) => {
   // TODO check: username exists?
-    database.createUser(req.body.username, userCreated(res));
+    database.createUser(req.body.username, userCreated(res), userError(res));
   }
 );
-
 // next()-func
 const userCreated = res => doc => {
       res.json({"doc":doc});  
+}
+const userError = res => err => {
+  res.json({"err":err}); 
 }
 
 // [2.2] /api/exercise/users
@@ -78,10 +84,31 @@ app.get("/api/exercise/users", (req, res)=>{
 
 // [2.3] /api/exercise/add
 app.post("/api/exercise/add", 
-  function(req, res, next) {
-    res.json({"add":23});
+  (req, res) => {
+    let d;
+    if(req.body.date=='') {
+      if(d==null) d = new Date(); // empty > now    
+    } else {
+      d = new Date(req.body.date);
+      if(d==null) {
+        // todo: handle error: wrong date fomat
+      }
+    }
+
+    const obj = {
+      description: req.body.description,
+      duration: req.body.duration,
+      date: d
+    };
+    database.createExercise(req.body.userId, obj)
+      .then(doc=>res.json({"data":doc}))
+      .catch(err=>res.json({"err":err}));
   }
 );
+
+// [2.4] /api/exercise/log?userId=xxx
+
+
 
 // Not found middleware
 app.use(
