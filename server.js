@@ -107,7 +107,19 @@ app.post("/api/exercise/add",
 );
 
 // [2.4] /api/exercise/log?userId=xxx
-
+app.get('/api/exercise/log/', (req, res)=>{
+  if(typeof req.query.userId=='undefined') {
+    res.json({error:"no userId defined"});
+  } else {
+    let args = {userId:req.query.userId};
+    if(typeof req.query.from!=='undefined') args.from = req.query.from;
+    if(typeof req.query.to!=='undefined') args.to = req.query.to;
+    if(typeof req.query.limit!=='undefined') args.limit = req.query.limit;
+    database.getUser(args)
+      .then(doc=>res.json({obj:doc}))
+      .catch(err=>res.json({error:err}));
+  }
+});
 
 
 // Not found middleware
