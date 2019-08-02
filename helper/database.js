@@ -12,7 +12,9 @@ exports.connect = () => {
       useNewUrlParser: true
     }).catch(err => { // Promise
       console.log(err);
-    }).then(()=>console.log('db connected'));
+    }).then(()=>{
+      console.log('db connected')}
+    );
 }
 
 // check connection -----------------------
@@ -102,10 +104,72 @@ exports.getAllUser = () => {
   });
 }
 
-// get a list of one user (exercises are included)
-// this works but cleaning exercise is don per array-funcs
-// TODO: solution probably with db.orders.aggregate?
+// get a list of one user and filtered exercises -------------------
+// [variant 2] db.orders.aggregate
+// - pure mongo solution (there also exists mongoose.aggregate())
 exports.getUser = args => {
+  // access core mongo-collection
+  const mongoUser = mongoose.connection.db.collection('users');
+
+  // pre-build "anded" date-conditions ---------------
+  let ands = [];
+  if(args.to) {
+    ands.push( {$lte: ["$$temp.date", new Date(args.to)]} );
+  }
+  if(args.from) {
+    ands.push( {$gte: ["$$temp.date", new Date(args.from)]} );
+  }
+
+  // pre-build pipeline dynamically ------------------
+  let query = {_id:mongo.ObjectId(args.userId)}; // without ObjectId(): no hits!
+  
+  // (1) get that entry matching userId
+  let pipeline = [];
+  pipeline.push(
+    {$match: query} 
+  );
+
+  // (2) filter by date
+  if(ands.length>0) {
+    pipeline.push(
+      {$project: {
+        exercises:{ // exercises-array
+          $filter: { // filter exercises
+            input: "$exercises", // must match prop-field
+            as: "temp", // free, default: this
+            cond: {
+              $and: ands
+            }
+          }
+        }
+      }}        
+    );
+  }
+
+  // (3) limit array size
+  if(args.limit) {
+    pipeline.push(
+      {$project: {
+        exercises:{ // another exercises-array is needed for slicing
+           $slice: ["$exercises", parseInt(args.limit)]
+        }
+      }}         
+    );
+  }  
+  
+  return new Promise((resolve, reject) => {
+     try {     
+      let cursor = mongoUser.aggregate(pipeline);
+      resolve(cursor.toArray());      
+    } catch(e) {
+      reject(e);
+    }
+  });
+} // getUser
+
+
+// [variant 1] this works but cleaning exercise is done per array-funcs
+exports.getUser_OLD = args => {
   let query = {_id:args.userId};
   
   // 0: don't show these columns

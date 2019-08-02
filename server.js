@@ -116,8 +116,14 @@ app.get('/api/exercise/log/', (req, res)=>{
     if(typeof req.query.to!=='undefined') args.to = req.query.to;
     if(typeof req.query.limit!=='undefined') args.limit = req.query.limit;
     database.getUser(args)
-      .then(doc=>res.json({obj:doc}))
-      .catch(err=>res.json({error:err}));
+      .then(doc=> {
+        res.json({obj:doc});
+        console.log("then ready", doc)
+      })
+      .catch(err=> {
+        res.json({error:err});
+        console.log("err ready: ", err)
+      });
   }
 });
 
