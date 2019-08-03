@@ -63,7 +63,7 @@ app.post("/api/exercise/new-user", (req, res) => {
 );
 // next()-func
 const userCreated = res => doc => {
-      res.json({"doc":doc});  
+  res.json({"doc":doc});  
 }
 const userError = res => err => {
   res.json({"err":err}); 

@@ -12,7 +12,9 @@ body {
 
 h1 {
   font-weight: bold;
-  
+}
+h3 {
+  margin: 0 0 1rem 0;
 }
 
 .bold {
@@ -21,17 +23,40 @@ h1 {
 
 p {
   max-width: 900px;
+  margin: 0 0 1rem 0;
+  padding:0;
+}
+ul,li {
+  margin:0;
 }
 
-form {
+iframe {
+  width:100%;
+  margin:0 0 1rem 0;
+}
+
+@media only screen and (min-width: 769px) {
+  .form-box {
+    display:flex;
+  }
+
+  .form-box .form:first-child {
+    margin-right:1rem;
+  }  
+}
+
+.form {
   margin-bottom: 25px;
   padding: 15px;
   background-color: #87D37C;
   display: inline-block;
   width: 100%;
-  max-width: 340px;
   border-radius: 5px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
 }
+
 
 input {
   display: block;
@@ -62,5 +87,5 @@ code {
   background-color: #FFFEC4;
   padding: 2px;
   display:block;
-  margin:0 0 1rem 0;
+  margin:0;
 }

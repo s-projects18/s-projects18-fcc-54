@@ -6,26 +6,63 @@
       <link rel="shortcut icon" href="https://cdn.hyperdev.com/us-east-1%3A52a203ff-088b-420f-81be-45bf559d01b1%2Ffavicon.ico" type="image/x-icon"/>
       <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
       <link href="style.css" rel="stylesheet" type="text/css">
+     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+     <script src="fe.js"></script>
    </head>
 
    <body>
       <div class="container">
          <h1>Exercise tracker</h1>
-          <form action="/api/exercise/new-user" method="post">
+        <div class="Xform-box">
+          <div class="inner">
+            <h3>Request results (iframe)</h3>
+            <iframe name="result"></iframe>
+          </div>
+        </div>
+          <div class="form-box">
+            <div class="form">
+              <div class="inner">
+                <h3>Get all User</h3>
+                <p><code>GET /api/exercise/users</code></p>
+              </div>
+              <div id="allUser"></div>
+              <a href="/">Reload</a>
+            </div>
+          <form class="form" action="/api/exercise/log" method="get" target="result">
+            <div class="inner">
+            <h3>Get users's exercise log</h3>
+            <p><code>GET /api/exercise/log</code></p>
+            <input id="userId" type="text" name="userId" placeholder="userId">
+            <input id="userFrom" type="text" name="from" placeholder="from">
+            <input id="userTo" type="text" name="to" placeholder="to">
+            <input id="userLimit" type="text" name="limit" placeholder="limit">
+            </div>
+            <input type="submit" value="Submit">
+          </form>            
+          </div>
+        
+        </div>
+        <div class="form-box">
+          <form class="form" action="/api/exercise/new-user" method="post" target="result">
+            <div class="inner">
             <h3>Create a New User</h3>
             <p><code>POST /api/exercise/new-user</code></p>
             <input id="uname" type="text" name="username" placeholder="username">
+            </div>
             <input type="submit" value="Submit">
           </form>
-          <form action="/api/exercise/add" method="post">
+          <form class="form" action="/api/exercise/add" method="post" target="result">
+            <div class="inner">
             <h3>Add exercises</h3>
             <p><code>POST /api/exercise/add</code></p>
             <input id="uid" type="text" name="userId" placeholder="userId*">
             <input id="desc" type="text" name="description" placeholder="description*">
             <input id="dur" type="text" name="duration" placeholder="duration* (mins.)">
             <input id="dat" type="text" name="date" placeholder="date (yyyy-mm-dd)">
+            </div>
             <input type="submit" value="Submit">
           </form>
+        </div>
           <p><strong>GET users's exercise log: </strong><code>GET /api/exercise/log?{userId}[&amp;from][&amp;to][&amp;limit]</code></p>
           <p><strong>{ }</strong> = required, <strong>[ ]</strong> = optional</p>
           <p><strong>from, to</strong> = dates (yyyy-mm-dd); <strong>limit</strong> = number</p>
