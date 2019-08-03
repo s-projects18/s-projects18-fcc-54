@@ -56,7 +56,10 @@ const Exercises = mongoose.model('exercises', exercisesSchema );
 exports.createExercise = (userId, exercise) => {
   return new Promise((resolve, reject)=>{
     let exerciseObject = new Exercises(exercise);
-
+    if(userId=='') reject('no userId');
+    if(exercise.description=='') reject('no description');
+    if(exercise.duration=='') reject('no duration');
+    
     Users.findOne({"_id":userId}, (err, user)=>{
       if(user==null) {
         reject("no user found for: "+userId);
@@ -76,7 +79,14 @@ exports.createExercise = (userId, exercise) => {
 
 // create a new user if not existing
 // uses next()-func-pattern
-exports.createUser = (username, next, nextErr) =>{
+exports.createUser = (username, next, nextErr) => {
+  if(username=='') {
+    nextErr("Username is empty");
+    // if en empty user-entry exists: code continues and
+    // another json is sent -> headers already-sent error
+    return;  
+  } 
+  
   let usersObject = new Users({
     username:username
   });
@@ -110,8 +120,9 @@ exports.getAllUser = () => {
 exports.getUser = args => {
   // access core mongo-collection
   const mongoUser = mongoose.connection.db.collection('users');
+  let error = false;
 
-  // pre-build "anded" date-conditions ---------------
+  // pre-build "anded" date-conditions ---
   let ands = [];
   if(args.to) {
     ands.push( {$lte: ["$$temp.date", new Date(args.to)]} );
@@ -120,16 +131,25 @@ exports.getUser = args => {
     ands.push( {$gte: ["$$temp.date", new Date(args.from)]} );
   }
 
-  // pre-build pipeline dynamically ------------------
-  let query = {_id:mongo.ObjectId(args.userId)}; // without ObjectId(): no hits!
-  
-  // (1) get that entry matching userId
+  // pre-build aggregation-pipeline dynamically ---
   let pipeline = [];
-  pipeline.push(
-    {$match: query} 
-  );
+  
+  // (1) get that entry matching userId 
+  if(args.userId) {
+    let query = {_id:mongo.ObjectId(args.userId)}; // without ObjectId(): no hits!
+    pipeline.push(
+      {$match: query} 
+    );
+  } else {
+    error = "No userId";
+  }
 
-  // (2) filter by date
+  // (2) projection: remove some props from result on first level
+  pipeline.push(
+    { $project : {insert_date:0, __v:0} }
+  );
+  
+  // (3) filter by date
   if(ands.length>0) {
     pipeline.push(
       {$project: {
@@ -146,21 +166,34 @@ exports.getUser = args => {
     );
   }
 
-  // (3) limit array size
-  if(args.limit) {
+  // (4) limit array size
+  const limit = parseInt(args.limit);
+  if(limit>0) {
     pipeline.push(
       {$project: {
         exercises:{ // another exercises-array is needed for slicing
-           $slice: ["$exercises", parseInt(args.limit)]
+           $slice: ["$exercises", limit]
         }
       }}         
     );
   }  
   
+  // (5) remove _id from exercises
+  pipeline.push(
+    {$project: { exercises: {_id:0} }}
+  );
+  
+  // execute aggregation
   return new Promise((resolve, reject) => {
-     try {     
+    if(error) reject(error);
+    try {     
       let cursor = mongoUser.aggregate(pipeline);
-      resolve(cursor.toArray());      
+      cursor.toArray((err,doc)=>{
+        doc[0].log=doc[0].exercises;
+        delete doc[0].exercises;
+        doc[0].count = doc[0].log.length;
+        resolve(doc[0]);    
+      });   
     } catch(e) {
       reject(e);
     }
