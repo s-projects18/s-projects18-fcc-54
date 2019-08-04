@@ -8,7 +8,7 @@ https://fuschia-custard.glitch.me
 
 ```
 // own
-{"username":"foo-test","_id":"5d46746966278425a43de80f"}
+{"username":"foo-test","_id":"5d47242218f64a00769c264f"}
 ```
 
 
@@ -27,8 +27,8 @@ https://fuschia-custard.glitch.me
 ```
 // own
 // - duration as string (no exact requirement)
-{"username":"foo-test","_id":"5d46746966278425a43de80f","description":"ex1"
-,"duration":"1","date":"2019-08-01T00:00:00.000Z"}
+{"username":"foo-test","_id":"5d47242218f64a00769c264f",
+"description":"ex1","duration":"1","date":"2019-08-01T00:00:00.000Z"}
 ```
 
 
@@ -42,8 +42,7 @@ https://fuschia-custard.glitch.me
 
 ```
 // own
-[...
-,{"_id":"5d46746966278425a43de80f","username":"foo-test"}]
+[{"_id":"5d47242218f64a00769c264f","username":"foo-test"}]
 ```
 
 ### get users's exercise log
@@ -69,13 +68,12 @@ unknown userId
 
 ```
 // own
-{"_id":"5d46746966278425a43de80f","username":"foo-test"
-,"log":[{"description":"ex1","duration":"1","date":"2019-08-01T00:00:00.000Z"}
+{"_id":"5d47242218f64a00769c264f","username":"foo-test","log":[
+{"description":"ex1","duration":"1","date":"2019-08-01T00:00:00.000Z"}
 ,{"description":"ex2","duration":"2","date":"2019-08-02T00:00:00.000Z"}
 ,{"description":"ex3","duration":"3","date":"2019-08-03T00:00:00.000Z"}
-,{"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"}
-,{"description":"ex5","duration":"5","date":"2019-08-05T00:00:00.000Z"}]
-,"count":5}
+,{"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"},
+{"description":"ex5","duration":"5","date":"2019-08-05T00:00:00.000Z"}],"count":5}
 ```
 
 
@@ -88,8 +86,8 @@ unknown userId
 ```
 // own
 // other result (reason: no way found to order in pipeline)
-{"_id":"5d46746966278425a43de80f","username":"foo-test",
-"log":[{"description":"ex1","duration":"1","date":"2019-08-01T00:00:00.000Z"}],"count":1}
+{"_id":"5d47242218f64a00769c264f","username":"foo-test","log":[
+{"description":"ex1","duration":"1","date":"2019-08-01T00:00:00.000Z"}],"count":1}
 ```
 
 
@@ -104,28 +102,12 @@ unknown userId
 ```
 // own
 // field from/ to not required
-{"_id":"5d46746966278425a43de80f","username":"foo-test",
-"log":[{"description":"ex3","duration":"3","date":"2019-08-03T00:00:00.000Z"},
-{"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"},
-{"description":"ex5","duration":"5","date":"2019-08-05T00:00:00.000Z"}],
-"count":3}
+{"_id":"5d47242218f64a00769c264f","username":"foo-test","log":[{
+description":"ex3","duration":"3","date":"2019-08-03T00:00:00.000Z"},{
+"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"},{
+"description":"ex5","duration":"5","date":"2019-08-05T00:00:00.000Z"}],"count":3}
 ```
 
-- https://fuschia-custard.glitch.me/api/exercise/log?userId=ry6vTA7mS&from=2019-08-03
-```
-// to-entry not included (requirement?)
-{"_id":"ry6vTA7mS","username":"foo-test","from":"Sat Aug 03 2019","count":1,
-"log":[{"description":"ex4","duration":4,"date":"Sun Aug 04 2019"}]}
-```
-
-```
-// own
-{"_id":"5d46746966278425a43de80f","username":"foo-test",
-"log":[{"description":"ex3","duration":"3","date":"2019-08-03T00:00:00.000Z"},
-{"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"},
-{"description":"ex5","duration":"5","date":"2019-08-05T00:00:00.000Z"}],
-"count":3}
-```
 
 
 - https://fuschia-custard.glitch.me/api/exercise/log?userId=ry6vTA7mS&from=2019-08-02&to=2019-08-04
@@ -138,10 +120,9 @@ unknown userId
 
 ```
 // own
-{"_id":"5d46746966278425a43de80f","username":"foo-test",
-"log":[{"description":"ex2","duration":"2","date":"2019-08-02T00:00:00.000Z"},
+{"_id":"5d47242218f64a00769c264f","username":"foo-test","log":[
+{"description":"ex2","duration":"2","date":"2019-08-02T00:00:00.000Z"},
 {"description":"ex3","duration":"3","date":"2019-08-03T00:00:00.000Z"},
-{"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"}],
-"count":3}
+{"description":"ex4","duration":"4","date":"2019-08-04T00:00:00.000Z"}],"count":3}
 ```
 

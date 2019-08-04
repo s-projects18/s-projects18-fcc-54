@@ -147,13 +147,13 @@ exports.getUser = args => {
   let pipeline = [];
   
   // (1) get that entry matching userId 
-  if(args.userId) {
+  if(args.userId && mongo.ObjectId.isValid(args.userId)) {
     let query = {_id:mongo.ObjectId(args.userId)}; // without ObjectId(): no hits!
     pipeline.push(
       {$match: query} 
     );
   } else {
-    error = "No userId";
+    error = "No (valid) userId";
   }
   
   // hint:
