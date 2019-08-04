@@ -48,10 +48,6 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html')
 });
 
-app.get('/test.html', (req, res) => {
-  res.sendFile(__dirname + '/views/test.html')
-});
-
 // [2.1] /api/exercise/new-user
 // pattern 1: call a database-func and provide a next()-func
 // next() will be called after database-action is done (async!)
@@ -63,10 +59,10 @@ app.post("/api/exercise/new-user", (req, res) => {
 );
 // next()-func
 const userCreated = res => doc => {
-  res.json({"doc":doc});  
+  res.json(doc);  
 }
 const userError = res => err => {
-  res.json({"err":err}); 
+  res.json({"error":err}); 
 }
 
 // [2.2] /api/exercise/users
@@ -75,10 +71,10 @@ const userError = res => err => {
 app.get("/api/exercise/users", (req, res)=>{
   database.getAllUser()
     .then(data=>{
-      res.json({"data":data});  
+      res.json(data);  
     })
     .catch(err=>{
-      res.json({"err":err});
+      res.json({"error":err});
     });  
 });
 
@@ -101,8 +97,8 @@ app.post("/api/exercise/add",
       date: d
     };
     database.createExercise(req.body.userId, obj)
-      .then(doc=>res.json({"data":doc}))
-      .catch(err=>res.json({"err":err}));
+      .then(doc=>res.json(doc))
+      .catch(err=>res.json({"error":err}));
   }
 );
 
@@ -117,8 +113,7 @@ app.get('/api/exercise/log/', (req, res)=>{
     if(typeof req.query.limit!=='undefined') args.limit = req.query.limit;
     database.getUser(args)
       .then(doc=> {
-        res.json({obj:doc});
-        console.log("then ready", doc)
+        res.json(doc);
       })
       .catch(err=> {
         res.json({error:err});

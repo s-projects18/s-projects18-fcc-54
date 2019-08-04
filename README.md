@@ -6,6 +6,7 @@
 You can add users to the tracker. Additionally you can add several exercises to each user.
 You can request all users and all exercises from a special user, defined by userId.
 All tracks will be stored in mongodb.
+Set the connection-string in .env as MONGOLAB_URI='...'.
 
 ### Commands
 
@@ -25,5 +26,5 @@ All tracks will be stored in mongodb.
 - { } = required, [ ] = optional
 - from, to = dates (yyyy-mm-dd); limit = number
 
-4) get all users:
-- GET /api/exercise/users
+
+

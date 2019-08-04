@@ -68,7 +68,14 @@ exports.createExercise = (userId, exercise) => {
 
         const pr = user.save(); // save user-object    
         pr.then(doc=>{
-          resolve(doc);  
+          let obj = {
+            username:doc.username,
+            _id:doc._id,
+            description:exerciseObject.description,
+            duration:exerciseObject.duration,
+            date:exerciseObject.date
+          };
+          resolve(obj);  
         }).catch(err=>{
           reject(err);  
         });       
@@ -93,9 +100,11 @@ exports.createUser = (username, next, nextErr) => {
   
   Users.findOne({username:username}, (err, docs)=>{
     if(docs==null) { // entry doesn't exist
+      // save() returns undefined if used with callback or a Promise otherwise
       const pr = usersObject.save();
-      pr.then(doc => next(doc))
-        .catch(err => nextErr(err));         
+      pr.then(doc => {
+        next({username:doc.username, _id:doc._id})
+      }).catch(err => nextErr(err));         
     } else {
       // doc yet exists
       nextErr("User-exists-error");  
@@ -107,7 +116,10 @@ exports.createUser = (username, next, nextErr) => {
 // uses Promise()-pattern
 exports.getAllUser = () => {
   return new Promise((resolve, reject)=>{
-    Users.find({},(err, docs)=>{
+    Users.find({})
+    .select({username:1, _id:1})
+    .sort('username') // -username (reverse order)
+    .exec((err, docs)=>{
       if(err) reject(err);
       else resolve(docs);
     });    
@@ -143,13 +155,12 @@ exports.getUser = args => {
   } else {
     error = "No userId";
   }
-
-  // (2) projection: remove some props from result on first level
-  pipeline.push(
-    { $project : {insert_date:0, __v:0} }
-  );
   
-  // (3) filter by date
+  // hint:
+  // filter and limit removes the top-level-fields and return only sub-array and _id of top-level
+  // so we must add wanted fields explicitly
+  
+  // (2) filter by date
   if(ands.length>0) {
     pipeline.push(
       {$project: {
@@ -161,11 +172,16 @@ exports.getUser = args => {
               $and: ands
             }
           }
-        }
+        },
+        username:1
       }}        
     );
   }
 
+  
+  // (3) TODO MAYBE: HOW TO SORT exercises IN PIPELINE BEFORE LIMIT ?
+  
+  
   // (4) limit array size
   const limit = parseInt(args.limit);
   if(limit>0) {
@@ -173,14 +189,17 @@ exports.getUser = args => {
       {$project: {
         exercises:{ // another exercises-array is needed for slicing
            $slice: ["$exercises", limit]
-        }
+        },
+        username:1
       }}         
     );
   }  
+
   
   // (5) remove _id from exercises
+  // you have  either include fields or exclude them — not both ( no 0 / 1 combinations) !
   pipeline.push(
-    {$project: { exercises: {_id:0} }}
+    {$project: { insert_date:0, __v:0, exercises: {_id:0} }}
   );
   
   // execute aggregation
@@ -189,9 +208,12 @@ exports.getUser = args => {
     try {     
       let cursor = mongoUser.aggregate(pipeline);
       cursor.toArray((err,doc)=>{
-        doc[0].log=doc[0].exercises;
+        if(doc==null) throw("doc is null");       
+        if(err) throw(err);
+        
+        doc[0].log=doc[0].exercises; // exercises -> log
         delete doc[0].exercises;
-        doc[0].count = doc[0].log.length;
+        doc[0].count = doc[0].log.length; // add count
         resolve(doc[0]);    
       });   
     } catch(e) {
